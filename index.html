@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>온라인 한글 필기 데이터 수집</title>
+    <title>한글 필기 데이터 수집</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,9 +20,6 @@
 <body>
     <h1>한글 필기 데이터 수집</h1>
 
-    <label for="userId">사용자 이름:</label>
-    <input type="text" id="userId" value="user001">
-
     <label for="textInput">텍스트 입력:</label>
     <input type="text" id="textInput" value="안녕하세요">
 
@@ -39,12 +36,10 @@
         let drawing = false;
         let data = [];
         let currentStroke = [];
-        
-        const userIdInput = document.getElementById('userId');
         const textInput = document.getElementById('textInput');
-        
+
         // 펜 설정 (굵기 증가)
-        ctx.lineWidth = 8;
+        ctx.lineWidth = 3;
         ctx.lineCap = 'round';
 
         canvas.addEventListener('pointerdown', (e) => {
@@ -83,20 +78,18 @@
         }
 
         function downloadData() {
-            const userId = userIdInput.value.trim();
             const text = textInput.value.trim();
 
-            if (userId === "" || text === "") {
-                alert("사용자 이름과 텍스트를 모두 입력하세요.");
+            if (text === "") {
+                alert("텍스트를 입력하세요.");
                 return;
             }
 
             const timestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
-            const filename = `record_handwriting/${text}/${userId}/${timestamp}.json`;
+            const filename = `handwriting_data/${text}/${timestamp}.json`;
 
             const jsonData = JSON.stringify({
                 text: text,
-                user_id: userId,
                 strokes: data
             }, null, 2);
 
@@ -109,6 +102,9 @@
             a.click();
 
             URL.revokeObjectURL(url);
+
+            // 저장 후 캔버스 자동 초기화
+            clearCanvas();
         }
     </script>
 </body>
