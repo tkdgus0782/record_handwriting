@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>한글 필기 데이터 수집</title>
+    <title>한글 온라인 필기 데이터 수집</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,7 +28,7 @@
     <br>
 
     <button onclick="clearCanvas()">화면 지우기</button>
-    <button onclick="downloadData()">JSON 파일로 저장하기</button>
+    <button onclick="downloadData()">XML 파일로 저장하기</button>
 
     <script>
         const canvas = document.getElementById('canvas');
@@ -39,7 +39,7 @@
         const textInput = document.getElementById('textInput');
 
         // 펜 설정 (굵기 증가)
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 5;
         ctx.lineCap = 'round';
 
         canvas.addEventListener('pointerdown', (e) => {
@@ -77,6 +77,22 @@
             data = [];
         }
 
+        function convertToXML(text, strokes) {
+            let xmlString = `<?xml version="1.0" encoding="UTF-8"?>\n<handwriting>\n`;
+            xmlString += `  <text>${text}</text>\n  <strokes>\n`;
+
+            strokes.forEach(stroke => {
+                xmlString += `    <stroke>\n`;
+                stroke.forEach(point => {
+                    xmlString += `      <point x="${point.x}" y="${point.y}"/>\n`;
+                });
+                xmlString += `    </stroke>\n`;
+            });
+
+            xmlString += `  </strokes>\n</handwriting>`;
+            return xmlString;
+        }
+
         function downloadData() {
             const text = textInput.value.trim();
 
@@ -86,14 +102,11 @@
             }
 
             const timestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
-            const filename = `handwriting_data/${text}/${timestamp}.json`;
+            const filename = `handwriting_data/${text}/${timestamp}.xml`;
 
-            const jsonData = JSON.stringify({
-                text: text,
-                strokes: data
-            }, null, 2);
+            const xmlData = convertToXML(text, data);
 
-            const blob = new Blob([jsonData], { type: 'application/json' });
+            const blob = new Blob([xmlData], { type: 'application/xml' });
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
